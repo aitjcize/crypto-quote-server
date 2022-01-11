@@ -13,5 +13,5 @@ In google spreadsheet, you can use the following formulat to fetch the price
 info:
 
 ```
-=IMPORTXML("https://YOUR_SERVER_HOST/quote?name=bitcion", "//Quote/price")
+=IMPORTXML("https://YOUR_SERVER_HOST/quote?id=bitcion", "//Quote/price/text()")
 ```

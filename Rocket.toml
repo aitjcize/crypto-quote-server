@@ -1,0 +1,11 @@
+## defaults for _all_ profiles
+[default]
+address = "127.0.0.1"
+
+[debug]
+port = 8000
+
+[release]
+port = 80
+address = "0.0.0.0"
+log_level = "normal"
