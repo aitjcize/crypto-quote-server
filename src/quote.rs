@@ -43,11 +43,12 @@ async fn fetch_price_aust() -> Result<Decimal, Box<dyn std::error::Error>> {
     }
 }
 
-pub async fn get_price(id: &str) -> Result<Decimal, Box<dyn std::error::Error>> {
-    let price = match id {
+pub async fn get_price(id: String) -> Result<Decimal, Box<dyn std::error::Error>> {
+    let price = match id.as_str() {
         "anchorust" => fetch_price_aust().await?,
-        _ => fetch_price_from_coingecko(id).await?,
+        _ => fetch_price_from_coingecko(id.as_str()).await?,
     };
+    println!("fetch!!!!");
     Ok(price)
 }
 
@@ -57,13 +58,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_price() {
-        let btc_price = get_price("bitcoin").await.unwrap();
+        let btc_price = get_price("bitcoin".to_string()).await.unwrap();
         assert!(btc_price > Decimal::new(10000, 0));
 
-        let eth_price = get_price("ethereum").await.unwrap();
+        let eth_price = get_price("ethereum".to_string()).await.unwrap();
         assert!(eth_price > Decimal::new(1000, 0));
 
-        let eth_price = get_price("anchorust").await.unwrap();
+        let eth_price = get_price("anchorust".to_string()).await.unwrap();
         assert!(eth_price > Decimal::new(1, 0));
     }
 }

@@ -15,3 +15,4 @@ url = "2.0"
 reqwest = { version = "0.11", features = ["json"] }
 terra-rust-api = "1.1.8"
 rocket = "0.5.0-rc.1"
+futures = "0.3"
