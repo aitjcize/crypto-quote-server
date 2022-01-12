@@ -1,13 +1,15 @@
-FROM rust:1.57 as build
+FROM rustlang/rust:nightly as build
 
 WORKDIR /app
 COPY . .
 
 RUN cargo build --release
 
-FROM rust:1.57
-RUN mkdir /app
+FROM rustlang/rust:nightly
+WORKDIR /app
+
 COPY --from=build /app/target/release/crypto-quote-server /app
+COPY --from=build /app/Rocket.toml /app
 
 EXPOSE 80
 
