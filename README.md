@@ -9,9 +9,22 @@ Usage
 
 Host the server somewhere (e.g. GCP, AWS).
 
-In google spreadsheet, you can use the following formulat to fetch the price
-info:
-
+Get Coin/Token Price:
 ```
 =IMPORTXML("https://YOUR_SERVER_HOST/quote?id=bitcion", "//Quote/price/text()")
+```
+
+Get Wallet Balance:
+```
+=IMPORTXML("https://YOUR_SERVER_HOST/wallet_balance?chain_id=<CHAIN_ID>&address=<YOUR_ADDRESS>", "//WalletBalance/balance/text()")
+```
+
+Supported Chain ID:
+* ethereum
+* polygon
+* avalanche
+
+Get Wallet ERC20 Token Balance:
+```
+=IMPORTXML("https://YOUR_SERVER_HOST/wallet_balance?chain_id=<CHAIN_ID>&token_address=<ERC20_CONTRACT_ADDRESS>&address=<YOUR_ADDRESS>", "//WalletBalance/balance/text()")
 ```

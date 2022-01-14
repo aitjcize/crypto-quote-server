@@ -10,6 +10,7 @@ WORKDIR /app
 
 COPY --from=build /app/target/release/crypto-quote-server /app
 COPY --from=build /app/Rocket.toml /app
+COPY --from=build /app/.env /app
 
 EXPOSE 80
 
