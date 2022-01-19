@@ -51,26 +51,26 @@ async fn quote_handler(cacher: &State<Cacher>, id: &str) -> Xml<(Status, String)
     }
 }
 
-#[get("/wallet_balance?<chain_id>&<token_address>&<address>")]
+#[get("/wallet_balance?<chain_id>&<token>&<address>")]
 async fn wallet_balance_handler(
     _cacher: &State<Cacher>,
     chain_id: &str,
-    token_address: Option<&str>,
+    token: Option<&str>,
     address: &str,
 ) -> Xml<(Status, String)> {
     #[derive(Debug, Serialize)]
     struct WalletBalance<'a> {
         chain_id: &'a str,
-        token_address: Option<&'a str>,
+        token: Option<&'a str>,
         address: &'a str,
         balance: &'a str,
     }
-    match wallet::get_balance(chain_id, token_address, address).await {
+    match wallet::get_balance(chain_id, token, address).await {
         Ok(balance) => {
             let balance = balance.to_string();
             let wallet_balance = WalletBalance {
                 chain_id,
-                token_address,
+                token,
                 address,
                 balance: balance.as_str(),
             };

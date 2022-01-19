@@ -30,7 +30,7 @@ async fn fetch_price_from_coingecko(id: &str) -> Result<Decimal, Box<dyn Error>>
 
 async fn fetch_price_aust() -> Result<Decimal, Box<dyn Error>> {
     let anchor_overseer_address = "terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8";
-    let query = "%7B%22epoch_state%22  %3A%7B%7D%7D";
+    let query = "%7B%22epoch_state%22%3A%7B%7D%7D";
 
     let client = Terra::lcd_client_no_tx("https://fcd.terra.dev", "columbus-5");
     let value: Value = client.wasm().query(anchor_overseer_address, query).await?;
