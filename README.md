@@ -24,6 +24,7 @@ Supported Chain ID:
 * polygon
 * avalanche
 * polkadot
+* bsc
 
 Get Wallet ERC20 Token Balance:
 ```
