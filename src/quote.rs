@@ -22,7 +22,7 @@ async fn fetch_price_from_coingecko(id: &str) -> Result<Decimal, Box<dyn Error>>
     if let Value::Null = value[id]["usd"] {
         return Err(Box::new(IoError::new(
             ErrorKind::Other,
-            format!("id not found"),
+            "id not found".to_string(),
         )));
     }
     Ok(Decimal::from_str_radix(&value[id]["usd"].to_string(), 10)?)
@@ -36,10 +36,10 @@ async fn fetch_price_aust() -> Result<Decimal, Box<dyn Error>> {
     let value: Value = client.wasm().query(anchor_overseer_address, query).await?;
 
     match &value["result"]["prev_exchange_rate"] {
-        Value::String(v) => Ok(Decimal::from_str_radix(&v, 10)?),
+        Value::String(v) => Ok(Decimal::from_str_radix(v, 10)?),
         _ => Err(Box::new(IoError::new(
             ErrorKind::Other,
-            format!("Parse error"),
+            "Parse error".to_string(),
         ))),
     }
 }

@@ -34,7 +34,7 @@ impl Cacher {
 async fn quote_handler(cacher: &State<Cacher>, id: &str) -> Xml<(Status, String)> {
     #[derive(Debug, Serialize)]
     struct Quote<'a> {
-        id: &'a str ,
+        id: &'a str,
         price: &'a str,
     }
 
@@ -85,7 +85,7 @@ fn rocket() -> _ {
     dotenv().ok();
 
     let cache_secs: u64 = env::var("CACHE_SECS")
-        .unwrap_or("300".to_string())
+        .unwrap_or_else(|_| "300".to_string())
         .parse()
         .unwrap();
 
