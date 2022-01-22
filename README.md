@@ -1,8 +1,10 @@
-Crypto Quote Server
-===================
+Google Sheets Crypto Server
+===========================
 
-A simple crypto price quote server to be used together with Google spreadsheet.
-Price data taken from Coingecko.
+Provides Google Sheets with Crypto price and wallet balance.
+
+* Provides crypto price with data from Coingecko.
+* Provides wallet balance query from various blockchains.
 
 Usage
 -----
@@ -23,10 +25,24 @@ Supported Chain ID:
 * ethereum
 * polygon
 * avalanche
-* polkadot
 * bsc
+* polkadot
+* terra
 
 Get Wallet ERC20 Token Balance:
 ```
-=IMPORTXML("https://YOUR_SERVER_HOST/wallet_balance?chain_id=<CHAIN_ID>&token_address=<ERC20_CONTRACT_ADDRESS>&address=<YOUR_ADDRESS>", "//WalletBalance/balance/text()")
+=IMPORTXML("https://YOUR_SERVER_HOST/wallet_balance?chain_id=<CHAIN_ID>&token=<ERC20_CONTRACT_ADDRESS>&address=<YOUR_ADDRESS>", "//WalletBalance/balance/text()")
+```
+
+Additional Notes for Terra
+--------------------------
+
+To get terra native coin balance, set `token=COIN`, current `COIN` supports:
+
+* LUNA
+* UST
+
+e.g.
+```
+=IMPORTXML("https://YOUR_SERVER_HOST/wallet_balance?chain_id=terra&token=LUNA&address=terra107q76k5uu3atgwz695vdcfee5qz9ukyz3jj0cs", "//WalletBalance/balance/text()")
 ```
