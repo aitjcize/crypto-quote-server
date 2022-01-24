@@ -173,7 +173,7 @@ pub async fn get_balance(
     address: &str,
 ) -> Result<Decimal, Box<dyn Error>> {
     match chain_id {
-        "ethereum" | "polygon" | "avalanche" => match token {
+        "ethereum" | "polygon" | "avalanche" | "bsc" => match token {
             Some(token_addr) => web3_get_erc20_token_balance(chain_id, token_addr, address).await,
             None => web3_get_balance(chain_id, address).await,
         },
