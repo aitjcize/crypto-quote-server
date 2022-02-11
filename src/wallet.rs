@@ -202,7 +202,7 @@ pub async fn get_balance(
 mod tests {
     use super::*;
     use ctor::ctor;
-    use dotenv;
+    
 
     #[cfg(test)]
     #[ctor]

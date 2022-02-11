@@ -6,11 +6,11 @@ use rust_decimal::prelude::Decimal;
 use serde_json::{self, Value};
 use terra_rust_api::Terra;
 
-async fn fetch_price_from_coingecko(id: &str) -> Result<Decimal, Box<dyn Error>> {
+async fn fetch_price_from_coingecko(ids: &[&str]) -> Result<Vec<Decimal>, Box<dyn Error>> {
     const COINGECKO_API_TMPL: &str =
         "https://api.coingecko.com/api/v3/simple/price?vs_currencies=USD&ids=";
 
-    let resp = reqwest::get(format!("{}{}", COINGECKO_API_TMPL, id)).await?;
+    let resp = reqwest::get(format!("{}{}", COINGECKO_API_TMPL, ids.join(","))).await?;
     if resp.status() != StatusCode::OK {
         return Err(Box::new(IoError::new(
             ErrorKind::Other,
@@ -19,13 +19,14 @@ async fn fetch_price_from_coingecko(id: &str) -> Result<Decimal, Box<dyn Error>>
     }
 
     let value = resp.json::<Value>().await?;
-    if let Value::Null = value[id]["usd"] {
-        return Err(Box::new(IoError::new(
-            ErrorKind::Other,
-            "id not found".to_string(),
-        )));
-    }
-    Ok(Decimal::from_str_radix(&value[id]["usd"].to_string(), 10)?)
+    let result : Vec<Decimal> = ids.iter().map(|id| {
+        if let Value::Null = value[id]["usd"] {
+            return Decimal::new(0, 0);
+        }
+        Decimal::from_str_radix(&value[id]["usd"].to_string(), 10).unwrap()
+    }).collect();
+
+    Ok(result)
 }
 
 async fn fetch_price_aust() -> Result<Decimal, Box<dyn Error>> {
@@ -44,12 +45,14 @@ async fn fetch_price_aust() -> Result<Decimal, Box<dyn Error>> {
     }
 }
 
-pub async fn get_price(id: String) -> Result<Decimal, Box<dyn Error>> {
-    let price = match id.as_str() {
-        "anchorust" => fetch_price_aust().await?,
-        _ => fetch_price_from_coingecko(id.as_str()).await?,
-    };
-    Ok(price)
+pub async fn get_price(ids: &[&str]) -> Result<Vec<Decimal>, Box<dyn Error>> {
+    let mut result = fetch_price_from_coingecko(ids).await?;
+
+    // Query accurate anchor vprice from contract.
+    if let Some(idx) = ids.iter().position(|id| (*id).eq("anchorust")) {
+        result[idx] = fetch_price_aust().await?;
+    }
+    Ok(result)
 }
 
 #[cfg(test)]
@@ -58,13 +61,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_price() {
-        let btc_price = get_price("bitcoin".to_string()).await.unwrap();
-        assert!(btc_price > Decimal::new(10000, 0));
-
-        let eth_price = get_price("ethereum".to_string()).await.unwrap();
-        assert!(eth_price > Decimal::new(1000, 0));
-
-        let eth_price = get_price("anchorust".to_string()).await.unwrap();
-        assert!(eth_price > Decimal::new(1, 0));
+        let prices = get_price(&["bitcoin", "ethereum", "anchorust"]).await.unwrap();
+        assert_eq!(prices.len(), 3);
+        assert!(prices[0] > Decimal::new(10000, 0));
+        assert!(prices[1] > Decimal::new(1000, 0));
+        assert!(prices[2] > Decimal::new(0, 0));
     }
 }

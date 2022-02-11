@@ -3,49 +3,45 @@
 extern crate rocket;
 extern crate dotenv;
 
-use std::env;
-use std::time::Duration;
-
 use dotenv::dotenv;
 use rocket::http::Status;
 use rocket::response::content::Xml;
-use rocket::State;
-use rust_decimal::prelude::Decimal;
 use serde::Serialize;
-use serde_xml_rs::to_string;
+use quick_xml::se::to_string;
 
-mod cache;
 mod quote;
 mod wallet;
 
-struct Cacher {
-    price_cache: cache::TimedMemCached<String, Decimal>,
-}
-
-impl Cacher {
-    fn new(expires: Duration) -> Cacher {
-        Cacher {
-            price_cache: cache::TimedMemCached::new(expires, Box::new(quote::get_price)),
-        }
-    }
-}
-
-#[get("/quote?<id>")]
-async fn quote_handler(cacher: &State<Cacher>, id: &str) -> Xml<(Status, String)> {
-    #[derive(Debug, Serialize)]
-    struct Quote<'a> {
-        id: &'a str,
-        price: &'a str,
+#[get("/quote?<ids>")]
+async fn quote_handler(ids: &str) -> Xml<(Status, String)> {
+    #[derive(Debug, Serialize, PartialEq)]
+    struct Price {
+        id: String,
+        #[serde(rename = "$value")]
+        price: String,
     }
 
-    match cacher.price_cache.get(id.to_string()).await {
-        Ok(price) => {
-            let price = price.to_string();
-            let quote = Quote {
-                id,
-                price: price.as_str(),
+    #[derive(Debug, Serialize, PartialEq)]
+    struct Quotes {
+        #[serde(rename = "price")]
+        quotes: Vec<Price>,
+    }
+
+    let ids_vec: Vec<&str> = ids.split(',').collect();
+
+    match quote::get_price(&ids_vec).await {
+        Ok(prices) => {
+            let quotes = Quotes {
+                quotes: ids_vec
+                    .iter()
+                    .zip(prices.iter())
+                    .map(|(id, price)| Price {
+                        id: id.to_string(),
+                        price: price.to_string(),
+                    })
+                    .collect(),
             };
-            Xml((Status::Ok, to_string(&quote).unwrap()))
+            Xml((Status::Ok, to_string(&quotes).unwrap()))
         }
         Err(e) => Xml((Status::BadRequest, e.to_string())),
     }
@@ -53,7 +49,6 @@ async fn quote_handler(cacher: &State<Cacher>, id: &str) -> Xml<(Status, String)
 
 #[get("/wallet_balance?<chain_id>&<token>&<address>")]
 async fn wallet_balance_handler(
-    _cacher: &State<Cacher>,
     chain_id: &str,
     token: Option<&str>,
     address: &str,
@@ -63,6 +58,7 @@ async fn wallet_balance_handler(
         chain_id: &'a str,
         token: Option<&'a str>,
         address: &'a str,
+        #[serde(rename = "$value")]
         balance: &'a str,
     }
     match wallet::get_balance(chain_id, token, address).await {
@@ -84,12 +80,5 @@ async fn wallet_balance_handler(
 fn rocket() -> _ {
     dotenv().ok();
 
-    let cache_secs: u64 = env::var("CACHE_SECS")
-        .unwrap_or_else(|_| "300".to_string())
-        .parse()
-        .unwrap();
-
-    rocket::build()
-        .manage(Cacher::new(Duration::from_secs(cache_secs)))
-        .mount("/", routes![quote_handler, wallet_balance_handler])
+    rocket::build().mount("/", routes![quote_handler, wallet_balance_handler])
 }
