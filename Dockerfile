@@ -14,4 +14,4 @@ COPY --from=build /app/.env /app
 
 EXPOSE 80
 
-CMD ["/app/crypto-quote-server", "-p", "80"]
+CMD ["/app/crypto-quote-server"]
