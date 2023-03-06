@@ -24,6 +24,7 @@ fn get_web3_transport(chain_id: &str) -> Result<Web3<web3::transports::Http>, Bo
         }
         "polygon" => Ok("https://polygon-rpc.com".into()),
         "avalanche" => Ok("https://api.avax.network/ext/bc/C/rpc".into()),
+        "moonbeam" => Ok("https://rpc.api.moonbeam.network".into()),
         "bsc" => Ok("https://bsc-dataseed1.ninicoin.io".into()),
         _ => Err(IoError::new(
             ErrorKind::Other,
@@ -173,7 +174,7 @@ pub async fn get_balance(
     address: &str,
 ) -> Result<Decimal, Box<dyn Error>> {
     match chain_id {
-        "ethereum" | "polygon" | "avalanche" | "bsc" => match token {
+        "ethereum" | "polygon" | "avalanche" | "moonbeam" | "bsc" => match token {
             Some(token_addr) => web3_get_erc20_token_balance(chain_id, token_addr, address).await,
             None => web3_get_balance(chain_id, address).await,
         },
@@ -202,7 +203,6 @@ pub async fn get_balance(
 mod tests {
     use super::*;
     use ctor::ctor;
-    
 
     #[cfg(test)]
     #[ctor]
@@ -212,7 +212,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_web3_get_balance() {
-        for chain in ["ethereum", "polygon", "avalanche", "bsc"].iter() {
+        for chain in ["ethereum", "polygon", "avalanche", "moonbeam", "bsc"].iter() {
             let balance = web3_get_balance(chain, "0xEFb616A5cdE977f87A9878EbEC0b23c655bac762")
                 .await
                 .unwrap();
