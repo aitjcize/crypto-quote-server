@@ -10,7 +10,12 @@ async fn fetch_price_from_coingecko(ids: &[&str]) -> Result<Vec<Decimal>, Box<dy
     const COINGECKO_API_TMPL: &str =
         "https://api.coingecko.com/api/v3/simple/price?vs_currencies=USD&ids=";
 
-    let resp = reqwest::get(format!("{}{}", COINGECKO_API_TMPL, ids.join(","))).await?;
+    let client = reqwest::Client::new();
+    let resp = client
+            .get(format!("{}{}", COINGECKO_API_TMPL, ids.join(",")))
+            .timeout(std::time::Duration::from_secs(5))
+            .send().await?;
+
     if resp.status() != StatusCode::OK {
         return Err(Box::new(IoError::new(
             ErrorKind::Other,

@@ -5,7 +5,7 @@ extern crate dotenv;
 
 use dotenv::dotenv;
 use rocket::http::Status;
-use rocket::response::content::Xml;
+use rocket::response::content::RawXml;
 use serde::Serialize;
 use quick_xml::se::to_string;
 
@@ -13,7 +13,7 @@ mod quote;
 mod wallet;
 
 #[get("/quote?<ids>")]
-async fn quote_handler(ids: &str) -> Xml<(Status, String)> {
+async fn quote_handler(ids: &str) -> RawXml<(Status, String)> {
     #[derive(Debug, Serialize, PartialEq)]
     struct Price {
         id: String,
@@ -41,9 +41,9 @@ async fn quote_handler(ids: &str) -> Xml<(Status, String)> {
                     })
                     .collect(),
             };
-            Xml((Status::Ok, to_string(&quotes).unwrap()))
+            RawXml((Status::Ok, to_string(&quotes).unwrap()))
         }
-        Err(e) => Xml((Status::BadRequest, e.to_string())),
+        Err(e) => RawXml((Status::BadRequest, e.to_string())),
     }
 }
 
@@ -52,7 +52,7 @@ async fn wallet_balance_handler(
     chain_id: &str,
     token: Option<&str>,
     address: &str,
-) -> Xml<(Status, String)> {
+) -> RawXml<(Status, String)> {
     #[derive(Debug, Serialize)]
     struct WalletBalance<'a> {
         chain_id: &'a str,
@@ -70,9 +70,9 @@ async fn wallet_balance_handler(
                 address,
                 balance: balance.as_str(),
             };
-            Xml((Status::Ok, to_string(&wallet_balance).unwrap()))
+            RawXml((Status::Ok, to_string(&wallet_balance).unwrap()))
         }
-        Err(e) => Xml((Status::BadRequest, e.to_string())),
+        Err(e) => RawXml((Status::BadRequest, e.to_string())),
     }
 }
 
