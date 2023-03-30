@@ -12,6 +12,11 @@ use quick_xml::se::to_string;
 mod quote;
 mod wallet;
 
+#[get("/alive")]
+async fn index() -> &'static str {
+    "OK"
+}
+
 #[get("/quote?<ids>")]
 async fn quote_handler(ids: &str) -> RawXml<(Status, String)> {
     #[derive(Debug, Serialize, PartialEq)]
@@ -80,5 +85,5 @@ async fn wallet_balance_handler(
 fn rocket() -> _ {
     dotenv().ok();
 
-    rocket::build().mount("/", routes![quote_handler, wallet_balance_handler])
+    rocket::build().mount("/", routes![index, quote_handler, wallet_balance_handler])
 }
