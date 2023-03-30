@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::env;
+
 use std::error::Error;
 use std::io::{Cursor, Error as IoError, ErrorKind};
 
@@ -18,10 +18,7 @@ const ERC20_ABI: &str = include_str!("erc20.json");
 
 fn get_web3_transport(chain_id: &str) -> Result<Web3<web3::transports::Http>, Box<dyn Error>> {
     let rpc_endpoint: String = match chain_id {
-        "ethereum" => {
-            let token = env::var("INFURA_TOKEN")?;
-            Ok(format!("https://mainnet.infura.io/v3/{}", token))
-        }
+        "ethereum" => Ok("https://1rpc.io/eth".into()),
         "polygon" => Ok("https://polygon-rpc.com".into()),
         "avalanche" => Ok("https://api.avax.network/ext/bc/C/rpc".into()),
         "moonbeam" => Ok("https://rpc.api.moonbeam.network".into()),
