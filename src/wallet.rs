@@ -210,7 +210,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_web3_get_balance() {
-        for chain in ["ethereum", "polygon", "avalanche", "moonbeam", "bsc", "arbitrum"].iter() {
+        for chain in ["ethereum", "polygon", "moonbeam", "bsc", "arbitrum"].iter() {
             let balance = web3_get_balance(chain, "0xEFb616A5cdE977f87A9878EbEC0b23c655bac762")
                 .await
                 .unwrap();

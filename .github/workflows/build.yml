@@ -3,13 +3,25 @@ name: Build
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: rustlang/rust:nightly
+    steps:
+    - uses: actions/checkout@v3
+    - name: Fix permission
+      run: git config --global --add safe.directory $PWD
+    - name: test
+      run: cargo test
 
   build:
-
+    needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Login to Docker Hub
