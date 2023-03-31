@@ -1,0 +1,22 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: crypto-quote-server
+spec:
+  template:
+    spec:
+      containers:
+        - image: aitjcize/crypto-quote-server:latest
+          ports:
+            containerPort: 80
+            name: http1
+          startupProbe:
+            failureThreshold: 1
+            periodSeconds: 240
+            tcpSocket:
+              port: 80
+            timeoutSeconds: 240
+
+    metadata:
+      annotations:
+        run.googleapis.com/vpc-access-connector: default

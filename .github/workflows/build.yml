@@ -12,24 +12,36 @@ jobs:
     container:
       image: rustlang/rust:nightly
     steps:
-    - uses: actions/checkout@v3
-    - name: Fix permission
-      run: git config --global --add safe.directory $PWD
-    - name: test
-      run: cargo test
+      - uses: actions/checkout@v3
+      - name: Fix permission
+        run: git config --global --add safe.directory $PWD
+      - name: test
+        run: cargo test
 
   build:
     needs: test
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build the Docker image
-      run: docker build -t aitjcize/crypto-quote-server:latest .
-    - name: Push Docker image
-      run: docker push aitjcize/crypto-quote-server:latest
+      - uses: actions/checkout@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build the Docker image
+        run: docker build -t aitjcize/crypto-quote-server:latest .
+      - name: Push Docker image
+        run: docker push aitjcize/crypto-quote-server:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: google/cloud-sdk:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy
+        run: ./bin/deploy.sh
+        env:
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
