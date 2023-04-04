@@ -5,18 +5,19 @@ metadata:
 spec:
   template:
     spec:
+      containerConcurrency: 80
       containers:
         - image: aitjcize/crypto-quote-server:latest
           ports:
             containerPort: 80
             name: http1
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 256Mi
           startupProbe:
             failureThreshold: 1
             periodSeconds: 240
             tcpSocket:
               port: 80
             timeoutSeconds: 240
-
-    metadata:
-      annotations:
-        run.googleapis.com/vpc-access-connector: default
