@@ -16,7 +16,7 @@ const ERC20_ABI: &str = include_str!("erc20.json");
 
 fn get_web3_transport(chain_id: &str) -> Result<Web3<web3::transports::Http>, Box<dyn Error>> {
     let rpc_endpoint: String = match chain_id {
-        "ethereum" => Ok("https://1rpc.io/eth".into()),
+        "ethereum" => Ok("https://eth.llamarpc.com".into()),
         "polygon" => Ok("https://polygon-rpc.com".into()),
         "avalanche" => Ok("https://api.avax.network/ext/bc/C/rpc".into()),
         "moonbeam" => Ok("https://rpc.api.moonbeam.network".into()),
@@ -151,7 +151,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_polkadot_get_balance() {
-        let balance = polkadot_get_balance("16ij7XU6wqSQU5ELKPxmrDotQM6gdwRCE5TeSRDe5D1vKXPY")
+        let balance = polkadot_get_balance("16hp43x8DUZtU8L3cJy9Z8JMwTzuu8ZZRWqDZnpMhp464oEd")
             .await
             .unwrap();
         println!("DOT: {}", balance);
