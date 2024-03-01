@@ -12,6 +12,12 @@ use quick_xml::se::to_string;
 mod quote;
 mod wallet;
 
+
+#[derive(Debug, Serialize, PartialEq)]
+struct Error<'a> {
+    response: &'a str
+}
+
 #[get("/alive")]
 async fn index() -> &'static str {
     "OK"
@@ -48,7 +54,12 @@ async fn quote_handler(ids: &str) -> RawXml<(Status, String)> {
             };
             RawXml((Status::Ok, to_string(&quotes).unwrap()))
         }
-        Err(e) => RawXml((Status::BadRequest, e.to_string())),
+        Err(e) => {
+            let error = Error {
+                response: &e.to_string()
+            };
+            RawXml((Status::BadRequest, to_string(&error).unwrap()))
+        }
     }
 }
 
@@ -77,7 +88,12 @@ async fn wallet_balance_handler(
             };
             RawXml((Status::Ok, to_string(&wallet_balance).unwrap()))
         }
-        Err(e) => RawXml((Status::BadRequest, e.to_string())),
+        Err(e) => {
+            let error = Error {
+                response: &e.to_string()
+            };
+            RawXml((Status::BadRequest, to_string(&error).unwrap()))
+        }
     }
 }
 

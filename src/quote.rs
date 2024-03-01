@@ -1,9 +1,9 @@
 use std::error::Error;
 use std::io::{Error as IoError, ErrorKind};
 
-use reqwest::{self, StatusCode};
+use reqwest::StatusCode;
 use rust_decimal::prelude::Decimal;
-use serde_json::{self, Value};
+use serde_json::Value;
 
 async fn fetch_price_from_coingecko(ids: &[&str]) -> Result<Vec<Decimal>, Box<dyn Error>> {
     const COINGECKO_API_TMPL: &str =
