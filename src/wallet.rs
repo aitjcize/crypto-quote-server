@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use std::error::Error;
 use std::io::{Cursor, Error as IoError, ErrorKind};
 
@@ -8,7 +6,6 @@ use ethcontract::Instance;
 use ethcontract_common::{hash, Abi};
 use num_traits::Pow;
 use rust_decimal::prelude::Decimal;
-use serde::Deserialize;
 use web3::types::{Address, U256};
 use web3::Web3;
 
@@ -64,38 +61,6 @@ async fn web3_get_erc20_token_balance(
     Ok(balance / decimals)
 }
 
-async fn polkadot_get_balance(address: &str) -> Result<Decimal, Box<dyn Error>> {
-    let client = reqwest::Client::new();
-    let mut map = HashMap::new();
-    map.insert("address", address.to_string());
-    let resp = client
-        .post("https://polkadot.api.subscan.io/api/open/account")
-        .json(&map)
-        .send()
-        .await?;
-
-    #[derive(Deserialize)]
-    struct Data {
-        balance: Decimal,
-    }
-    #[derive(Deserialize)]
-    struct JsonResult {
-        data: Data,
-    }
-
-    Ok(resp.json::<JsonResult>().await?.data.balance)
-}
-
-async fn substrate_get_balance(chain_id: &str, address: &str) -> Result<Decimal, Box<dyn Error>> {
-    match chain_id {
-        "polkadot" => polkadot_get_balance(address).await,
-        _ => Err(Box::new(IoError::new(
-            ErrorKind::Other,
-            "invalid chain_id".to_string(),
-        ))),
-    }
-}
-
 pub async fn get_balance(
     chain_id: &str,
     token: Option<&str>,
@@ -106,10 +71,9 @@ pub async fn get_balance(
             Some(token_addr) => web3_get_erc20_token_balance(chain_id, token_addr, address).await,
             None => web3_get_balance(chain_id, address).await,
         },
-        "polkadot" => substrate_get_balance(chain_id, address).await,
         _ => Err(Box::new(IoError::new(
             ErrorKind::Other,
-            "invalid chain_id".to_string(),
+            "invalid chain_id id".to_string(),
         ))),
     }
 }
@@ -147,14 +111,5 @@ mod tests {
         .unwrap();
         println!("ERC20: {}", balance);
         assert_eq!(Decimal::new(100, 0), balance);
-    }
-
-    #[tokio::test]
-    async fn test_polkadot_get_balance() {
-        let balance = polkadot_get_balance("16hp43x8DUZtU8L3cJy9Z8JMwTzuu8ZZRWqDZnpMhp464oEd")
-            .await
-            .unwrap();
-        println!("DOT: {}", balance);
-        assert_ne!(Decimal::new(0, 0), balance);
     }
 }
