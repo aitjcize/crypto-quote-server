@@ -16,7 +16,7 @@ const ERC20_ABI: &str = include_str!("erc20.json");
 
 fn get_web3_transport(chain_id: &str) -> Result<Web3<web3::transports::Http>, Box<dyn Error>> {
     let rpc_endpoint: String = match chain_id {
-        "ethereum" => Ok("https://eth.llamarpc.com".into()),
+        "ethereum" => Ok("https://rpc.ankr.com/eth".into()),
         "polygon" => Ok("https://polygon-rpc.com".into()),
         "avalanche" => Ok("https://api.avax.network/ext/bc/C/rpc".into()),
         "moonbeam" => Ok("https://rpc.api.moonbeam.network".into()),
