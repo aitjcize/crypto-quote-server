@@ -12,6 +12,7 @@ async fn fetch_price_from_coingecko(ids: &[&str]) -> Result<Vec<Decimal>, Box<dy
     let client = reqwest::Client::new();
     let resp = client
             .get(format!("{}{}", COINGECKO_API_TMPL, ids.join(",")))
+            .header("User-Agent", "Mozilla/5.0 (compatible; CryptoQuoteServer/1.0)")
             .timeout(std::time::Duration::from_secs(5))
             .send().await?;
 
